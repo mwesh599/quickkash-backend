@@ -12,6 +12,10 @@ const userSchema = new mongoose.Schema({
   referredBy: { type: String },
   spinUsedToday: { type: Boolean, default: false },
 
+  // ✅ Email Verification Fields
+  emailVerified: { type: Boolean, default: false },
+  verificationToken: { type: String, default: null },
+
   createdAt: { type: Date, default: Date.now }
 });
 

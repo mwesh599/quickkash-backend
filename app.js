@@ -3,37 +3,53 @@ const mongoose = require('mongoose');
 const dotenv = require('dotenv');
 const cors = require('cors');
 
-// Load env variables
+// Load environment variables from .env
 dotenv.config();
 
 const app = express();
 
-// Import routes
-const authRoutes = require('./routes/authRoutes');
-
-// Middleware
-app.use(express.json());
+// ======================
+// MIDDLEWARE
+// ======================
 app.use(cors());
+app.use(express.json()); // 💡 Parses incoming JSON requests
 
-// API Routes
-app.use('/api/auth', authRoutes);
+// ======================
+// ROUTES
+// ======================
+const authRoutes = require('./routes/authRoutes');
+app.use('/api/auth', authRoutes); // e.g., /api/auth/register, /api/auth/login
 
-// Root route
+// Root route for health check
 app.get('/', (req, res) => {
-  res.send('QuickKash API is running...');
+  res.send('🚀 QuickKash API is running...');
 });
 
-// Error handling middleware
+// Global error handler (optional)
 app.use((err, req, res, next) => {
-  console.error(err.stack);
-  res.status(500).send('Something broke!');
+  console.error('🔴 Error:', err.stack);
+  res.status(500).json({ message: 'Something went wrong!' });
 });
 
-// Connect to MongoDB and start server
+// ======================
+// MONGODB CONNECTION + SERVER START
+// ======================
 const PORT = process.env.PORT || 5000;
-mongoose.connect(process.env.MONGO_URI)
+
+mongoose.connect(process.env.MONGO_URI, {
+  useNewUrlParser: true,
+  useUnifiedTopology: true
+})
   .then(() => {
     console.log('✅ MongoDB connected');
-    app.listen(PORT, () => console.log(`🚀 Server running on port ${PORT}`));
+    app.listen(PORT, () => {
+      console.log(`🚀 Server running at http://localhost:${PORT}`);
+    });
   })
-  .catch(err => console.log('❌ MongoDB connection failed:', err));
+  .catch(err => {
+    console.error('❌ MongoDB connection failed:', err);
+    process.exit(1); // optional: stop app if DB fails
+  });
+
+// Optional: export app for testing
+module.exports = app;

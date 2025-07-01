@@ -1,25 +1,42 @@
-const otpStore = new Map(); // You can use DB later for persistence
+const otpStore = new Map(); // In-memory store (replace with DB for production)
 
-// Generate and store OTP
-function generateOtp(email) {
+/**
+ * Generate and store a 6-digit OTP for an email or phone number.
+ * @param {string} identifier - Email or phone number
+ * @returns {string} OTP
+ */
+function generateOtp(identifier) {
   const otp = Math.floor(100000 + Math.random() * 900000).toString();
-  otpStore.set(email, { otp, expiresAt: Date.now() + 5 * 60 * 1000 }); // expires in 5 mins
-  console.log(`OTP for ${email}: ${otp}`); // simulate sending OTP
+  otpStore.set(identifier, {
+    otp,
+    expiresAt: Date.now() + 5 * 60 * 1000 // 5 minutes
+  });
+
+  console.log(`OTP for ${identifier}: ${otp}`); // Simulate sending OTP (for now)
   return otp;
 }
 
-// Validate OTP
-function validateOtp(email, otp) {
-  const record = otpStore.get(email);
+/**
+ * Validate a submitted OTP against the stored one.
+ * @param {string} identifier - Email or phone number
+ * @param {string} otp - OTP entered by the user
+ * @returns {boolean} true if valid and not expired
+ */
+function validateOtp(identifier, otp) {
+  const record = otpStore.get(identifier);
   if (!record) return false;
+
   const isValid = record.otp === otp && Date.now() < record.expiresAt;
-  if (isValid) otpStore.delete(email); // one-time use
-  return isValid;
+  if (isValid) {
+    otpStore.delete(identifier); // One-time use
+    return true;
+  }
+
+  return false;
 }
 
-module.exports = { generateOtp, validateOtp };
-// This module provides functions to generate and validate OTPs for user authentication.
-// It uses an in-memory store (Map) for simplicity, but can be extended to use a database for persistence.
-// The `generateOtp` function creates a 6-digit OTP, stores it with an expiration time, and simulates sending it to the user.
-// The `validateOtp` function checks if the provided OTP matches the stored one and is still valid (not expired).
-// If valid, it deletes the OTP from the store to ensure it's used only once.
+module.exports = {
+  generateOtp,
+  validateOtp,
+  otpStore // optional: for testing/debug
+};

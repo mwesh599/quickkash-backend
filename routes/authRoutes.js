@@ -6,7 +6,8 @@ const {
   registerUser,
   loginUser,
   forgotPassword,
-  resetPassword
+  resetPassword,
+  verifyEmail
 } = require('../controllers/authController');
 
 // @route   POST /api/auth/register
@@ -20,7 +21,7 @@ router.post('/register', registerUser);
 router.post('/login', loginUser);
 
 // @route   POST /api/auth/forgot-password
-// @desc    Send OTP to user email (simulated)
+// @desc    Send OTP to user email
 // @access  Public
 router.post('/forgot-password', forgotPassword);
 
@@ -29,15 +30,19 @@ router.post('/forgot-password', forgotPassword);
 // @access  Public
 router.post('/reset-password', resetPassword);
 
+// ✅ NEW
+// @route   POST /api/auth/verify-email
+// @desc    Verify email with OTP and activate account
+// @access  Public
+router.post('/verify-email', verifyEmail);
+
 module.exports = router;
 
 /*
   Routes Overview:
-  - /register: Create new account
-  - /login: Authenticate and return token
-  - /forgot-password: Generate & "send" OTP to user (simulated)
-  - /reset-password: Accept OTP + new password and update account
-
-  These routes are powered by authController.js logic.
-  This modular structure keeps your backend organized and scalable.
+  - /register: Create new account & send OTP
+  - /login: Login if verified
+  - /forgot-password: Generate & send OTP for reset
+  - /reset-password: Use OTP to reset password
+  - /verify-email: Use OTP to activate account
 */
